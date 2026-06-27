@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Student Mind Growth Survey</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Student assessment dashboard</p>
+        <h1>Student Mind Growth Survey</h1>
+      </div>
+      <div class="top-actions">
+        <button class="ghost-button" id="resetApp" type="button">Reset</button>
+        <button class="primary-button" id="printReportTop" type="button">Print report</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="profile-panel">
+        <canvas class="signal-canvas" id="signalCanvas" width="420" height="220" aria-label="Cognitive profile visual"></canvas>
+
+        <form id="profileForm" class="profile-form">
+          <label>
+            Student name
+            <input id="studentName" name="studentName" type="text" placeholder="Enter student name" required>
+          </label>
+
+          <label>
+            Age
+            <input id="studentAge" name="studentAge" type="number" min="6" max="25" placeholder="Enter age" required>
+          </label>
+
+          <label>
+            Level
+            <select id="studentLevel" name="studentLevel">
+              <option value="primary">Primary, 7-10 years</option>
+              <option value="middle" selected>Middle, 11-13 years</option>
+              <option value="secondary">Secondary, 14-16 years</option>
+              <option value="senior">Senior secondary, 17-19 years</option>
+              <option value="college">College, 20+ years</option>
+            </select>
+          </label>
+
+          <label>
+            Class or grade
+            <input id="studentClass" name="studentClass" type="text" placeholder="Example: Grade 7" required>
+          </label>
+        </form>
+
+        <div id="profileNotice" class="profile-notice hidden" role="alert"></div>
+
+        <div class="status-list" aria-label="Assessment progress">
+          <div class="status-row" id="speedStatus"><span></span>Thinking speed</div>
+          <div class="status-row" id="reasoningStatus"><span></span>Reasoning</div>
+          <div class="status-row" id="memoryStatus"><span></span>Memory recall</div>
+          <div class="status-row" id="surveyStatus"><span></span>Learning needs</div>
+        </div>
+
+        <p class="note">
+          This is an educational screening tool. It is not a clinical IQ test, diagnosis, or official mental-age test.
+        </p>
+      </aside>
+
+      <section class="assessment-panel">
+        <nav class="step-tabs" aria-label="Assessment sections">
+          <button class="tab-button active" type="button" data-target="speedSection">Speed</button>
+          <button class="tab-button" type="button" data-target="reasoningSection">Reasoning</button>
+          <button class="tab-button" type="button" data-target="memorySection">Memory</button>
+          <button class="tab-button" type="button" data-target="surveySection">Needs</button>
+          <button class="tab-button" type="button" data-target="reportSection">Report</button>
+        </nav>
+
+        <section id="speedSection" class="task-section active">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Timed task</p>
+              <h2>Thinking speed</h2>
+            </div>
+            <div class="timer-chip" id="speedTimer">00:00</div>
+          </div>
+          <div class="task-stage" id="speedStage">
+            <p class="task-copy">Answer the short timed questions as accurately as possible.</p>
+            <button class="primary-button" id="startSpeed" type="button">Start speed task</button>
+          </div>
+        </section>
+
+        <section id="reasoningSection" class="task-section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Level based</p>
+              <h2>Reasoning check</h2>
+            </div>
+            <div class="score-chip" id="reasoningChip">Not started</div>
+          </div>
+          <form id="reasoningForm" class="question-list"></form>
+        </section>
+
+        <section id="memorySection" class="task-section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Recall task</p>
+              <h2>Working memory</h2>
+            </div>
+            <div class="timer-chip" id="memoryTimer">Ready</div>
+          </div>
+          <div class="task-stage" id="memoryStage">
+            <p class="task-copy">Study the words, then select the words you remember.</p>
+            <button class="primary-button" id="startMemory" type="button">Start memory task</button>
+          </div>
+        </section>
+
+        <section id="surveySection" class="task-section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Self report</p>
+              <h2>Learning needs survey</h2>
+            </div>
+            <div class="score-chip" id="surveyChip">Not started</div>
+          </div>
+          <form id="surveyForm" class="survey-list"></form>
+        </section>
+
+        <section id="reportSection" class="task-section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Generated report</p>
+              <h2>Assessment summary</h2>
+            </div>
+            <button class="primary-button" id="printReport" type="button">Print report</button>
+          </div>
+
+          <div id="reportEmpty" class="empty-report">
+            Complete all four sections to generate the report.
+          </div>
+
+          <div id="reportContent" class="report-content hidden">
+            <div class="metric-grid">
+              <article class="metric-card">
+                <span>Thinking speed</span>
+                <strong id="metricSpeed">0</strong>
+              </article>
+              <article class="metric-card">
+                <span>Reasoning</span>
+                <strong id="metricReasoning">0</strong>
+              </article>
+              <article class="metric-card">
+                <span>Memory</span>
+                <strong id="metricMemory">0</strong>
+              </article>
+              <article class="metric-card">
+                <span>Growth readiness</span>
+                <strong id="metricSurvey">0</strong>
+              </article>
+            </div>
+
+            <div class="report-layout">
+              <canvas id="reportChart" class="report-chart" width="520" height="360" aria-label="Assessment score chart"></canvas>
+              <div class="summary-block">
+                <h3 id="overallBand">Overall band</h3>
+                <p id="iqBand"></p>
+                <p id="mentalAge"></p>
+                <p id="developmentNeed"></p>
+              </div>
+            </div>
+
+            <div class="recommendation-block">
+              <h3>Recommended development plan</h3>
+              <ul id="recommendations"></ul>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
